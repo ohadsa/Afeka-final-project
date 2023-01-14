@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/welcomeFragment">
+
+
+    <fragment
+        android:id="@+id/welcomeFragment"
+        android:name="com.example.memory_ohad.fragments.WelcomeFragment"
+        android:label="WelcomeFragment" >
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/gameFragment"
+        android:name="com.example.memory_ohad.fragments.GameFragment"
+        android:label="fragment_game"
+        tools:layout="@layout/fragment_game" >
+
+    </fragment>
+
+    <action
+        android:id="@+id/action_to_gameFragment"
+        app:destination="@id/gameFragment" />
+
+    <action
+        android:id="@+id/action_to_welcomeFragment"
+        app:destination="@id/welcomeFragment" />
+
+
+
+</navigation>

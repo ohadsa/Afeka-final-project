@@ -1,0 +1,127 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-parcelize'
+    //-----Hilt-----
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+}
+
+android {
+    namespace 'com.example.memory_ohad'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "com.example.memory_ohad"
+        minSdk 21
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary true
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.1.1'
+    }
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+}
+
+dependencies {
+
+    implementation "com.google.accompanist:accompanist-placeholder:0.27.0"
+    implementation 'io.michaelrocks:libphonenumber-android:8.12.19-2'
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
+    implementation "com.github.skydoves:landscapist-glide:2.0.3"
+    implementation "androidx.compose.ui:ui:$compose_version"
+    implementation "androidx.compose.material:material:$compose_version"
+    implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
+    implementation 'androidx.activity:activity-compose:1.6.1'
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
+    debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
+    debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+    debugApi "androidx.customview:customview:1.2.0-alpha02"
+    debugApi "androidx.customview:customview-poolingcontainer:1.0.0"
+
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.makeramen:roundedimageview:2.3.0'
+    implementation "com.faltenreich:skeletonlayout:4.0.0"
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.14.0'
+    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    //Jetpack Compose Flow Layouts
+    implementation "com.google.accompanist:accompanist-flowlayout:0.27.0"
+
+    //Dagger - Hilt
+    implementation("com.google.dagger:hilt-android:2.42")
+    kapt("com.google.dagger:hilt-android-compiler:2.42")
+
+    //paging3
+    implementation "androidx.paging:paging-runtime:3.1.1"
+    implementation "androidx.paging:paging-compose:1.0.0-alpha17"
+
+    //view model
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
+    //navigator
+    implementation "androidx.navigation:navigation-compose:2.5.3"
+
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.14.0'
+    implementation "com.github.skydoves:landscapist-glide:2.0.3"
+
+    //Swipe Refresh layout for Jetpack Compose
+    implementation "com.google.accompanist:accompanist-swiperefresh:0.27.0"
+
+    // Tab Layout pager Compose
+    implementation "com.google.accompanist:accompanist-pager:0.13.0"
+    implementation "com.google.accompanist:accompanist-pager-indicators:0.13.0"
+
+    //coil library to handle gif and more
+    implementation("io.coil-kt:coil-compose:2.2.2")
+    implementation("io.coil-kt:coil-gif:2.2.2")
+
+    //Placeholder for Jetpack Compose
+    implementation "com.google.accompanist:accompanist-placeholder:0.27.0"
+    implementation "com.google.accompanist:accompanist-placeholder-material:0.27.0"
+
+    //gson
+    implementation 'com.google.code.gson:gson:2.10'
+
+    //keyboard
+    implementation 'net.yslibrary.keyboardvisibilityevent:keyboardvisibilityevent:3.0.0-RC2'
+    //lotie
+    implementation "com.airbnb.android:lottie-compose:5.2.0"
+
+    //share on facebook
+    implementation 'com.facebook.android:facebook-share:latest.release'
+    implementation "androidx.fragment:fragment-ktx:1.4.1"
+}
