@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1012134513932",
+    "firebase_url": "https://hazardsonroad-default-rtdb.firebaseio.com",
+    "project_id": "hazardsonroad",
+    "storage_bucket": "hazardsonroad.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1012134513932:android:94658fbeae47ca64c08d29",
+        "android_client_info": {
+          "package_name": "com.example.final_project_afeka"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1012134513932-lsvgns6p9dgskm3qbnvjan7bkg5ghuqr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvdDly1sJGvu4UJihUf7HTINCAgbPHGy0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1012134513932-lsvgns6p9dgskm3qbnvjan7bkg5ghuqr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 
 }
-rootProject.name = "Memory_ohad"
+rootProject.name = "final_project_afeka"
 include ':app'

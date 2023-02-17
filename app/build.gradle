@@ -5,14 +5,16 @@ plugins {
     //-----Hilt-----
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
 }
 
 android {
-    namespace 'com.example.memory_ohad'
+    namespace 'com.example.final_project_afeka'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.memory_ohad"
+        applicationId "com.example.final_project_afeka"
         minSdk 21
         targetSdk 33
         versionCode 1
@@ -51,6 +53,9 @@ android {
 }
 
 dependencies {
+    implementation 'com.google.firebase:firebase-database-ktx:20.1.0'
+    def retrofit_version = "2.9.0"
+    def nav_version = "2.5.0"
 
     implementation "com.google.accompanist:accompanist-placeholder:0.27.0"
     implementation 'io.michaelrocks:libphonenumber-android:8.12.19-2'
@@ -124,4 +129,37 @@ dependencies {
     //share on facebook
     implementation 'com.facebook.android:facebook-share:latest.release'
     implementation "androidx.fragment:fragment-ktx:1.4.1"
+
+    //firebase
+    implementation platform('com.google.firebase:firebase-bom:31.2.0')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-auth-ktx'
+
+    //firebase analytics
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+
+
+    // retrofit:
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+
+    //gson
+    implementation 'com.google.code.gson:gson:2.10'
+
+    // coroutines for okhttp:
+    implementation("ru.gildor.coroutines:kotlin-coroutines-okhttp:1.0")
+
+
+    // okhttp:
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
+
+    implementation 'androidx.core:core-ktx:1.8.0'
+    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
+    implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
+    implementation 'com.google.android.exoplayer:exoplayer:2.16.1'
+
 }
