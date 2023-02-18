@@ -1,8 +1,8 @@
-package com.example.final_project_afeka.login.models
+package com.example.final_project_afeka.login.data
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
-import java.util.Date
+import java.util.*
 
 @Parcelize
 data class MyUser(
@@ -14,7 +14,7 @@ data class MyUser(
     val wishCredit :Int = 3 ,
     val premium : Long = Date().time + 10000
 
-    ) : Parcelable {
+) : Parcelable {
 
     fun allFilled(confirm: String): Boolean {
         return username.isNotEmpty() && email.isNotEmpty() && avatar.isNotEmpty() && password.length > 4 && password == confirm
@@ -23,3 +23,18 @@ data class MyUser(
     fun validPassword(): Boolean =( password.length >= 4 )
 }
 
+
+data class Duration(
+    val hours: Long,
+    val minutes: Long,
+    val seconds: Long,
+) {
+    val formatted =
+        if (hours > 0) String.format("%02d:%02d:%02d", hours, minutes, seconds)
+        else String.format("%02d:%02d", minutes, seconds)
+}
+
+data class MyTime(
+    val startTime: Long,
+    val duration: Duration,
+)

@@ -3,8 +3,6 @@ package com.example.final_project_afeka
 import android.content.Intent
 import android.os.Bundle
 import android.view.MotionEvent
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
 import androidx.fragment.app.FragmentActivity
 import com.example.final_project_afeka.login.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -50,8 +48,11 @@ class MainActivity : FragmentActivity()  {
     public override fun onStart() {
         super.onStart()
         val currentUser = auth.currentUser
-        if (currentUser == null)
+        if (currentUser == null) {
+            println("cur userId = ${auth.currentUser?.uid?:"null"}")
+
             startLoginActivity()
+        }
         else {
             println("cur userId = ${auth.currentUser?.uid}")
             println("cur user email = ${auth.currentUser?.email}")
@@ -59,13 +60,4 @@ class MainActivity : FragmentActivity()  {
 
     }
 
-}
-
-
-
-
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
 }

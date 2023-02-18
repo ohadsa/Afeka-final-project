@@ -1,10 +1,8 @@
 package com.example.final_project_afeka.login.ui
 
 import android.app.Activity
-import android.content.SharedPreferences
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.example.final_project_afeka.login.models.MyUser
+import com.example.final_project_afeka.login.data.MyUser
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,8 +11,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    arguments: SavedStateHandle,
-    private val sharedPreferences: SharedPreferences,
     private val auth: FirebaseAuth,
     private val realTimeDB: FirebaseDatabase,
 

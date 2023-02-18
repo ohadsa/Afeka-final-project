@@ -3,21 +3,41 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/gameFragment">
+    app:startDestination="@id/homeFragment">
 
 
 
     <fragment
-        android:id="@+id/gameFragment"
-        android:name="com.example.final_project_afeka.fragments.GameFragment"
-        android:label="fragment_game"
-        tools:layout="@layout/fragment_game" >
+        android:id="@+id/homeFragment"
+        android:name="com.example.final_project_afeka.fragments.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
 
     </fragment>
 
     <action
-        android:id="@+id/action_to_gameFragment"
-        app:destination="@id/gameFragment" />
+        android:id="@+id/action_to_homeFragment"
+        app:destination="@id/homeFragment" />
+
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.example.final_project_afeka.fragments.MapFragment"
+        android:label="fragment_map"
+        tools:layout="@layout/fragment_map" />
+
+    <action
+        android:id="@+id/action_to_mapFragment"
+        app:destination="@id/mapFragment" />
+
+    <fragment
+        android:id="@+id/driveFragment"
+        android:name="com.example.final_project_afeka.fragments.DriveFragment"
+        android:label="fragment_drive"
+        tools:layout="@layout/fragment_drive" />
+
+    <action
+        android:id="@+id/action_to_driveFragment"
+        app:destination="@id/driveFragment" />
 
 
 </navigation>
