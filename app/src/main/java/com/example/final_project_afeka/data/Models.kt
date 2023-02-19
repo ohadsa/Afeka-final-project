@@ -1,6 +1,8 @@
-package com.example.final_project_afeka.login.data
+package com.example.final_project_afeka.data
 
 import android.os.Parcelable
+import com.example.final_project_afeka.location.Loc
+import com.example.final_project_afeka.utils.permissions.Permission
 import kotlinx.parcelize.Parcelize
 import java.util.*
 
@@ -37,4 +39,16 @@ data class Duration(
 data class MyTime(
     val startTime: Long,
     val duration: Duration,
+)
+
+
+data class PermissionData(
+    val request: Permission,
+    val rationale: String
+)
+
+data class Hazard(
+    val loc :Loc,
+    val title :String,
+    val snippet :String
 )

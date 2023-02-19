@@ -1,4 +1,4 @@
-package com.example.final_project_afeka.login.data
+package com.example.final_project_afeka.data
 
 import java.util.concurrent.TimeUnit
 

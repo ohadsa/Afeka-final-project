@@ -63,7 +63,6 @@ fun HomePage(
                     textSize = 24.sp,
                     fontName = FontName.DMSans),
                 text = stringResource(id = R.string.start)) {
-                viewModel.startDriving()
                 startDriving()
             }
 

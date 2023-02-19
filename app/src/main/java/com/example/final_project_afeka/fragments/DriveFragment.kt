@@ -1,8 +1,10 @@
 package com.example.final_project_afeka.fragments
 
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -26,14 +28,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startForegroundService
 import androidx.core.graphics.toColorInt
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.example.final_project_afeka.MainViewModel
 import com.example.final_project_afeka.R
+import com.example.final_project_afeka.location.LocationService
 import com.example.final_project_afeka.ui.generic.*
 import com.example.final_project_afeka.ui.theme.MyColors
 import com.example.final_project_afeka.ui.theme.generic.DrawableImage
 import com.example.final_project_afeka.ui.theme.generic.MyText
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.*
 
 
 class DriveFragment : Fragment(R.layout.fragment_drive) {
@@ -42,13 +51,13 @@ class DriveFragment : Fragment(R.layout.fragment_drive) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         view.findViewById<ComposeView>(R.id.composeViewDrive).setContent {
             DrivePage(viewModel) {
-                activity?.onBackPressedDispatcher?.onBackPressed()
+                viewModel.stopDriving()
+                activity?.onBackPressed()
             }
-
         }
-
     }
 }
 
@@ -60,6 +69,7 @@ fun DrivePage(
     val drivingCounter by viewModel.drivingCounter.collectAsState(null)
     val isDriving = drivingCounter != null
     val endTime by viewModel.endTime.collectAsState()
+    val location by viewModel.location.collectAsState()
 
     Box(Modifier.fillMaxSize()) {
         DrawableImage(id = R.drawable.top_left_circles,
@@ -69,26 +79,29 @@ fun DrivePage(
                 .height(144.dp)
                 .align(
                     Alignment.TopStart))
-        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
+
+        Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
+            ClickableTopBar(
+                left = null,
+                right = null,
+                leftId = R.drawable.left_arrow,
+                onLeft = {
+                    onBack()
+                }
+            )
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f, false),
+                    .fillMaxSize().weight(1f,false),
+                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                ClickableTopBar(
-                    left = null,
-                    right = null,
-                    leftId = R.drawable.left_arrow,
-                    onLeft = {
-                        onBack()
-                    }
-                )
-                Spacer(modifier = Modifier.height(160.dp))
+
+
                 CircularProgressbar(
+
                     number = drivingCounter?.seconds?.toFloat()
-                        ?: 0f.also { println("number = $it") },
-                    indicatorThickness = 20.dp,
+                        ?: 0f,
+                    indicatorThickness = 12.dp,
                     size = 250.dp
                 ) {
                     Column(modifier = Modifier.fillMaxSize(),
@@ -105,19 +118,22 @@ fun DrivePage(
                             color = MyColors.darkGray,
                         )
                         MyText(
-                            modifier = Modifier,
-                            text = stringResource(id = R.string.duration),
-                            font = MyFont(weight = FontWeight.W600,
-                                textSize = 12.sp,
+                            modifier = Modifier
+                                .padding(top = 3.dp),
+                            text = "Driving",
+                            font = MyFont(weight = FontWeight.W800,
+                                textSize = 16.sp,
                                 fontName = FontName.Poppins),
-                            color = MyColors.gray50,
+                            color = MyColors.darkGray,
                         )
+
                     }
                 }
             }
+
             Column {
                 CostumeButton(
-                    text =stringResource(id = R.string.report),
+                    text = stringResource(id = R.string.report),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
@@ -128,7 +144,7 @@ fun DrivePage(
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 CostumeButton(
-                    text =  stringResource(id = R.string.stop_driving),
+                    text = stringResource(id = R.string.stop_driving),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
@@ -139,9 +155,9 @@ fun DrivePage(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
             }
-
         }
     }
+
 }
 
 @Composable
@@ -149,7 +165,7 @@ fun CostumeButton(
     modifier: Modifier = Modifier,
     shape: Shape = CircleShape,
     color: Color = Color.White,
-    font: MyFont =  MyFont.Heading6,
+    font: MyFont = MyFont.Heading6,
     text: String,
     onClick: () -> Unit,
 ) {

@@ -18,6 +18,7 @@ import com.example.final_project_afeka.ui.theme.generic.MyText
 const val emptyString = ""
 @Composable
 fun ClickableTopBar(
+    modifier: Modifier = Modifier,
     enabledRight: Boolean = true,
     enabledLeft: Boolean = true,
     right: String? = emptyString,
@@ -37,7 +38,7 @@ fun ClickableTopBar(
     val isPressedLeft by interactionSourceLeft.collectIsPressedAsState()
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth(),
         contentAlignment = Alignment.BottomCenter,
 

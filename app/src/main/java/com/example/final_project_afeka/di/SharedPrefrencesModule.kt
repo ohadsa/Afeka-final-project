@@ -1,7 +1,8 @@
-package com.ohadsa.a_to_z.di
+package com.example.final_project_afeka.di
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.example.final_project_afeka.R
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,9 +18,9 @@ object SharedPreferencesModule {
     @Singleton
     fun provideSharedPreferences(@ApplicationContext appContext: Context): SharedPreferences =
         appContext.getSharedPreferences(
-            KEY,
+            appContext.getString(R.string.preference_file_key),
             Context.MODE_PRIVATE
         )
-}
 
-const val KEY = "com.tedooo.sharedPreferences"
+
+}

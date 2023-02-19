@@ -7,11 +7,17 @@ plugins {
     id 'dagger.hilt.android.plugin'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+
 }
 
 android {
     namespace 'com.example.final_project_afeka'
     compileSdk 33
+
+    buildFeatures{
+        viewBinding true
+    }
 
     defaultConfig {
         applicationId "com.example.final_project_afeka"
@@ -54,6 +60,7 @@ android {
 
 dependencies {
     implementation 'com.google.firebase:firebase-database-ktx:20.1.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
     def retrofit_version = "2.9.0"
     def nav_version = "2.5.0"
 
@@ -161,5 +168,10 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
     implementation 'com.google.android.exoplayer:exoplayer:2.16.1'
+
+    //google maps
+    implementation 'com.google.maps.android:maps-compose:2.10.0'
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
+
 
 }

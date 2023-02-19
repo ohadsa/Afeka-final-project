@@ -2,7 +2,7 @@ package com.example.final_project_afeka.login.ui
 
 import android.app.Activity
 import androidx.lifecycle.ViewModel
-import com.example.final_project_afeka.login.data.MyUser
+import com.example.final_project_afeka.data.MyUser
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import dagger.hilt.android.lifecycle.HiltViewModel
