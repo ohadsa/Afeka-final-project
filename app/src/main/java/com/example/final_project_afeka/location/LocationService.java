@@ -2,6 +2,7 @@ package com.example.final_project_afeka.location;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.Notification;
@@ -114,6 +115,7 @@ public class LocationService extends Service {
         public void done() {}
     };
 
+    @SuppressLint("MissingPermission")
     private void startRecording() {
         // Keep CPU working
         powerManager = (PowerManager) getSystemService(POWER_SERVICE);
