@@ -13,10 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.activityViewModels
 import com.example.final_project_afeka.MainViewModel
 import com.example.final_project_afeka.R
+import com.example.final_project_afeka.ui.generic.ClickableTopBar
+import com.example.final_project_afeka.ui.generic.CostumeDivider
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -40,21 +43,34 @@ class MapFragment :  Fragment(R.layout.fragment_map){
             }
 
             Box(Modifier.fillMaxSize()) {
-                GoogleMap(
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.84f)
-                        .padding(horizontal = 24.dp, vertical = 48.dp)
-                        .clip(
-                            RoundedCornerShape(12.dp)),
-                    cameraPositionState = cameraPositionState,
-                ) {
-                    Marker(
-                        state = MarkerState(position =  LatLng(32.18 , 34.81)),
-                        title = "Hazard",
-                        snippet = "Hazard"
+                Column {
+                    ClickableTopBar(
+                        left = null,
+                        leftId = R.drawable.left_arrow,
+                        middle = stringResource(id = R.string.map_fragment_title),
+                        onLeft = {
+                            viewModel.stopService()
+                            activity?.onBackPressed()
+                        }
                     )
+                    CostumeDivider(Modifier.padding(top = 16.dp))
+                    GoogleMap(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .padding( 12.dp)
+                            .clip(
+                                RoundedCornerShape(12.dp)),
+                        cameraPositionState = cameraPositionState,
+                    ) {
+                        hazards.forEach {
+                            Marker(
+                                state = MarkerState(position = LatLng(it.loc.lat, it.loc.lon)),
+                                title = it.title,
+                                snippet = it.snippet
+                            )
+                        }
+                    }
                 }
             }
         }

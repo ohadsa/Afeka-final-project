@@ -23,17 +23,11 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : FragmentActivity(){
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         MyReminder.startReminder(this)
-        println("onCreate 34")
         collectAll()
-        println("onCreate 36")
-
-
     }
 
 
@@ -48,7 +42,6 @@ class MainActivity : FragmentActivity(){
 
     private val myRadio: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            println("Receveier!!!!")
             val json = intent.getStringExtra(LocationService.BROADCAST_NEW_LOCATION_EXTRA_KEY)
             val loc: Loc = Gson().fromJson(json, Loc::class.java)
             viewModel.notifyLocationChanged(loc)
@@ -118,7 +111,7 @@ class MainActivity : FragmentActivity(){
 
         }
         lifecycleScope.launch {
-            viewModel.finisDriving.collect {
+            viewModel.finishService.collect {
                 if (it){
                     println("collectAll 123")
                     stopService()

@@ -1,10 +1,7 @@
 package com.example.final_project_afeka.fragments
 
-import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.View
-import androidx.activity.OnBackPressedCallback
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -12,10 +9,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,23 +20,19 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startForegroundService
+import androidx.compose.ui.window.Dialog
 import androidx.core.graphics.toColorInt
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
 import com.example.final_project_afeka.MainViewModel
 import com.example.final_project_afeka.R
-import com.example.final_project_afeka.location.LocationService
 import com.example.final_project_afeka.ui.generic.*
 import com.example.final_project_afeka.ui.theme.MyColors
 import com.example.final_project_afeka.ui.theme.generic.DrawableImage
 import com.example.final_project_afeka.ui.theme.generic.MyText
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.*
 
 
 class DriveFragment : Fragment(R.layout.fragment_drive) {
@@ -67,9 +57,11 @@ fun DrivePage(
     onBack: () -> Unit,
 ) {
     val drivingCounter by viewModel.drivingCounter.collectAsState(null)
-    val isDriving = drivingCounter != null
-    val endTime by viewModel.endTime.collectAsState()
     val location by viewModel.location.collectAsState()
+    val openHazardDialog by viewModel.openHazardDialog.collectAsState()
+    val pinedLocation by viewModel.pinnedLocation.collectAsState()
+
+
 
     Box(Modifier.fillMaxSize()) {
         DrawableImage(id = R.drawable.top_left_circles,
@@ -91,7 +83,8 @@ fun DrivePage(
             )
             Column(
                 modifier = Modifier
-                    .fillMaxSize().weight(1f,false),
+                    .fillMaxSize()
+                    .weight(1f, false),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -140,7 +133,7 @@ fun DrivePage(
                         .height(60.dp)
                         .fillMaxWidth()
                 ) {
-                    viewModel.hazardTriggered()
+                    viewModel.hazardTriggered(location)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 CostumeButton(
@@ -156,15 +149,101 @@ fun DrivePage(
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
-    }
 
+        if (openHazardDialog)
+            Dialog(onDismissRequest = { viewModel.closeHazardDialog() }) {
+                SaveHazardPopup(
+                    onDismiss = { viewModel.closeHazardDialog() },
+                    onSave = {
+                        pinedLocation?.let {
+                            viewModel.saveNewHazard(it)
+                            viewModel.closeHazardDialog()
+                        }
+                    }
+                )
+            }
+    }
 }
+
+@Composable
+fun SaveHazardPopup(
+    onDismiss: () -> Unit,
+    onSave: () -> Unit,
+) {
+    Box(Modifier.fillMaxSize()) {
+        Column(Modifier
+            .fillMaxWidth(0.9f)
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color.White, RoundedCornerShape(8.dp))
+            .align(Alignment.Center)) {
+            ClickableTopBar(
+                leftId = R.drawable.left_arrow,
+                onLeft = { onDismiss() },
+                left = null,
+                middle = stringResource(id = R.string.report)
+            )
+            CostumeDivider(modifier = Modifier.padding(top = 16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                DrawableImage(id = R.drawable.location_save,
+                    svg = false,
+                    modifier = Modifier.size(60.dp))
+            }
+            Column(Modifier.padding(horizontal = 12.dp)) {
+                Spacer(modifier = Modifier.height(16.dp))
+                MyText(
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    text = stringResource(R.string.report_title),
+                    font = MyFont.Heading6)
+                Spacer(modifier = Modifier.height(4.dp))
+                MyText(
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    text = stringResource(R.string.report_text),
+                    font = MyFont.Body16,
+                    color = MyColors.gray50)
+                Spacer(modifier = Modifier.height(24.dp))
+                CostumeButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(42.dp),
+                    shape = RoundedCornerShape(4.dp),
+                    borderSize = 1.dp,
+                    text = stringResource(id = R.string.save),
+                ) {
+                    onSave()
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                CostumeButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(42.dp),
+                    shape = RoundedCornerShape(4.dp),
+                    text = stringResource(id = R.string.cancel),
+                    textColor = MyColors.danger,
+                    borderColor = MyColors.danger,
+                    borderSize = 1.dp,
+                    buttonColor = MyColors.danger25
+                ) {
+                    onDismiss()
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+
+            }
+        }
+    }
+}
+
 
 @Composable
 fun CostumeButton(
     modifier: Modifier = Modifier,
     shape: Shape = CircleShape,
-    color: Color = Color.White,
+    textColor: Color = Color.White,
+    buttonColor: Color = Color("#67CEBF".toColorInt()),
+    borderColor: Color = Color("#4AB5A4".toColorInt()),
+    borderSize: Dp = 5.dp,
     font: MyFont = MyFont.Heading6,
     text: String,
     onClick: () -> Unit,
@@ -177,8 +256,8 @@ fun CostumeButton(
             scaleX = if (isPressed) 0.98f else 1.0f
             scaleY = if (isPressed) 0.98f else 1.0f
         }
-        .border(5.dp, Color("#4AB5A4".toColorInt()), shape = shape)
-        .background(Color("#67CEBF".toColorInt()), shape)
+        .border(borderSize, borderColor, shape = shape)
+        .background(buttonColor, shape)
         .clip(shape)
         .clickableNoFeedback(interactionSource) {
             onClick()
@@ -190,7 +269,7 @@ fun CostumeButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.Center),
-            color = color,
+            color = textColor,
             textAlign = TextAlign.Center)
     }
 }

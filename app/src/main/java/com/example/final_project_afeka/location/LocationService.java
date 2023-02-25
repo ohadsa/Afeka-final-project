@@ -104,11 +104,9 @@ public class LocationService extends Service {
     private MCT5.CycleTicker cycleTicker = new MCT5.CycleTicker() {
         @Override
         public void secondly(int repeatsRemaining) {
-            Log.d("pttt", Thread.currentThread().getName() + " - Hi " + System.currentTimeMillis());
             counter += 100;
-
-            String content = new SimpleDateFormat("dd/MM/yy HH:mm:ss", Locale.US).format(System.currentTimeMillis());
-            updateNotification(counter + "m \n" + content);
+            String content = "Drive safe ! \ntap to back to app";
+            updateNotification(content);
         }
 
         @Override
@@ -123,7 +121,7 @@ public class LocationService extends Service {
         wakeLock.acquire();
 
 
-        MCT5.get().cycle(cycleTicker, MCT5.CONTINUOUSLY_REPEATS, 5000);
+        MCT5.get().cycle(cycleTicker, MCT5.CONTINUOUSLY_REPEATS, 500);
 
         // Run GPS
         fusedLocationProviderClient = getFusedLocationProviderClient(this);

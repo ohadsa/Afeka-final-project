@@ -41,5 +41,9 @@
     <string name="stop_location_updates_button_text">Stop receiving location updates</string>
 
     <string name="location_updated">Location Updated: %1$s</string>
+    <string name="report_title">Location point saved</string>
+    <string name="report_text">would you like to report of a road problem ?</string>
+    <string name="save">Save</string>
+    <string name="map_fragment_title">Hazards around</string>
 
 </resources>

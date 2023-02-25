@@ -8,6 +8,7 @@ import com.example.final_project_afeka.R
 internal object SharedPreferenceUtil {
 
     const val KEY_FOREGROUND_ENABLED = "tracking_foreground_location"
+    const val START_TIME_TAG = "startTimeTag"
 
     fun getLocationTrackingPref(context: Context): Boolean =
         context.getSharedPreferences(

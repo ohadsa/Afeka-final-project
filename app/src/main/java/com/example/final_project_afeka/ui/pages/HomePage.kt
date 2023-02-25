@@ -70,23 +70,9 @@ fun HomePage(
             MyText(text = stringResource(id = R.string.see_hazard),
                 font = MyFont.Heading6)
             Spacer(modifier = Modifier.height(24.dp))
-            MapButton() {
+            MapButton {
                 goToMap()
             }
-
-            /*
-        drivingCounter?.let {
-            Spacer(modifier = Modifier.height(24.dp))
-            MyText(text = "time : $drivingCounter",
-                font = MyFont.Heading6)
-        }
-        endTime?.let {
-            Spacer(modifier = Modifier.height(24.dp))
-            MyText(text = "total : $it",
-                font = MyFont.Heading6)
-        }
-
-             */
         }
     }
 }

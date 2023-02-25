@@ -34,6 +34,15 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         permissionManager = viewModel.permissionManager
         permissionManager.from(this@HomeFragment)
         initPermissionResultFlow()
+        if (viewModel.initialStartTime != -1L) {
+            if (foregroundPermissionApproved()) {
+                viewModel.startDriving(viewModel.initialStartTime)
+                findNavController().navigate(R.id.action_to_driveFragment)
+            } else {
+                openMap = false
+                requestForegroundPermissions()
+            }
+        }
         view.findViewById<ComposeView>(R.id.composeViewHome).setContent {
             HomePage(
                 viewModel = viewModel,
