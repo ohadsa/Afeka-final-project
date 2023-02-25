@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class MainActivity : FragmentActivity(){
+class MainActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -112,9 +112,18 @@ class MainActivity : FragmentActivity(){
         }
         lifecycleScope.launch {
             viewModel.finishService.collect {
-                if (it){
-                    println("collectAll 123")
+                if (it) {
+                    viewModel.allowService.value = false
                     stopService()
+                }
+            }
+
+        }
+        lifecycleScope.launch {
+            viewModel.allowService.collect {
+                if (it) {
+                    viewModel.finishService.value = false
+                    startService()
                 }
             }
 

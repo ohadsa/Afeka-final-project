@@ -43,8 +43,8 @@ data class MyTime(
 
 
 data class PermissionData(
-    val request: Permission,
-    val rationale: String
+    val request: Permission? = null,
+    val rationale: String =""
 )
 
 data class Hazard(

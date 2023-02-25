@@ -45,6 +45,7 @@ class DriveFragment : Fragment(R.layout.fragment_drive) {
         view.findViewById<ComposeView>(R.id.composeViewDrive).setContent {
             DrivePage(viewModel) {
                 viewModel.stopDriving()
+                viewModel.backToHome = true
                 activity?.onBackPressed()
             }
         }

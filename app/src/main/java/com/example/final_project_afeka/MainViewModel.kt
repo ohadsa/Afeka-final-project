@@ -43,12 +43,14 @@ class MainViewModel @Inject constructor(
     private val _drivingCounter = MutableStateFlow<Long?>(null)
     val startTime = MutableStateFlow<Long?>(null)
     val finishService = MutableStateFlow(false)
+    val allowService =  MutableStateFlow(false)
     val openHazardDialog = MutableStateFlow(false)
     val pinnedLocation = MutableStateFlow<Loc?>(null)
     val drivingCounter = _drivingCounter.combine(startTime) { counter, start ->
         if (counter == null || start == null) null
         else start.durationFromTime()
     }
+    var backToHome = false
 
     fun startDriving(time: Long = System.currentTimeMillis()) {
         startTime.value = time
@@ -67,7 +69,7 @@ class MainViewModel @Inject constructor(
                 for (shot in snapshot.children) {
                     val loc = shot.getValue(Loc::class.java)
                     loc?.let {
-                        hazards.add(Hazard(it, "SHALOM", ""))
+                        hazards.add(Hazard(it, "Hazard", ""))
                     }
                 }
                 hazardAround.value = hazards
@@ -150,6 +152,10 @@ class MainViewModel @Inject constructor(
         val a = buffer.double
         val b = buffer.double
         return Pair(a, b)
+    }
+
+    fun startService() {
+        allowService.value = true
     }
 }
 

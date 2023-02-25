@@ -34,6 +34,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         permissionManager = viewModel.permissionManager
         permissionManager.from(this@HomeFragment)
         initPermissionResultFlow()
+        viewModel.backToHome = false
         if (viewModel.initialStartTime != -1L) {
             if (foregroundPermissionApproved()) {
                 viewModel.startDriving(viewModel.initialStartTime)
@@ -99,19 +100,27 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 permissionManager
                     .request(Permission.LocationAndNotifications)
                     .rationale(permissionData.rationale)
-                    .checkDetailedPermission { result ->
-                        if (result.all { it.value }) {
-                            viewModel.startDriving()
-                            if (openMap)
+                    .checkDetailedPermission {
+                        if (foregroundPermissionApproved() && !viewModel.backToHome) {
+
+                            if (openMap) {
+                                viewModel.startService()
                                 findNavController().navigate(R.id.action_to_mapFragment)
-                            else
+                            }
+                            else {
+                                viewModel.startDriving()
                                 findNavController().navigate(R.id.action_to_driveFragment)
+                            }
                         }
+                        viewModel.backToHome = false
+
                     }
             }
 
         }
     }
+
+
 
     private fun logout() {
         activity?.startActivity(Intent(requireActivity(),
