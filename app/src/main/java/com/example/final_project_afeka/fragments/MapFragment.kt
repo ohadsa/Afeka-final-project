@@ -41,6 +41,7 @@ class MapFragment :  Fragment(R.layout.fragment_map){
             val cameraPositionState = rememberCameraPositionState {
                 position = CameraPosition.fromLatLngZoom(cur, 15f)
             }
+            println("all hazards = ${hazards.map { "$it\n" }}")
 
             Box(Modifier.fillMaxSize()) {
                 Column {
@@ -62,6 +63,7 @@ class MapFragment :  Fragment(R.layout.fragment_map){
                             .clip(
                                 RoundedCornerShape(12.dp)),
                         cameraPositionState = cameraPositionState,
+
                     ) {
                         hazards.forEach {
                             Marker(

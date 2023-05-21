@@ -9,7 +9,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.activityViewModels
 import com.example.final_project_afeka.MainActivity
 import com.example.final_project_afeka.R
-import com.example.final_project_afeka.login.WelcomePage
+import com.example.final_project_afeka.login.ui.composable.WelcomePage
 import dagger.hilt.android.AndroidEntryPoint
 
 

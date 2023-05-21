@@ -40,7 +40,7 @@ public class ReminderReceiver extends BroadcastReceiver {
         Log.d("pttt", "checkToActivateReminder A");
 
         context = context.getApplicationContext();
-        if (!LocationService.isMyServiceRunning(context)) {
+        if (!LocationService.Companion.isMyServiceRunning(context)) {
             Log.d("pttt", "checkToActivateReminder B");
 
             // TODO: 23/11/2021 Ask if service should run right now

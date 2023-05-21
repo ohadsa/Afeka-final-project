@@ -12,10 +12,6 @@ data class MyUser(
     val email: String = "",
     val avatar: String = "",
     val password: String = "",
-    val favoriteCredit :Int = 3 ,
-    val wishCredit :Int = 3 ,
-    val premium : Long = Date().time + 10000
-
 ) : Parcelable {
 
     fun allFilled(confirm: String): Boolean {

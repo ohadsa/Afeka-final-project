@@ -21,16 +21,56 @@ import com.example.final_project_afeka.utils.permissions.Permission
 import com.example.final_project_afeka.utils.permissions.PermissionRequestHandlerImpl
 import kotlinx.coroutines.launch
 
+import android.util.Log
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONObject
+import java.lang.Exception
+
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
+    fun testApiKey(apiKey: String) {
+        val client = OkHttpClient()
+        val lat = 0.0
+        val lng = 0.0
+        val geocodingUrl = "https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lng&key=$apiKey"
+
+        val request = Request.Builder()
+            .url(geocodingUrl)
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
+                Log.e("API_KEY_TEST", "Error testing API key.", e)
+            }
+
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    if (!response.isSuccessful) {
+                        Log.d("API_KEY_TEST", "API key might be invalid.")
+                        return
+                    }
+
+                    val jsonResponse = JSONObject(response.body!!.string())
+                    val status = jsonResponse.getString("status")
+
+                    if (status == "OK") {
+                        Log.d("API_KEY_TEST", "API key is valid.")
+                    } else {
+                        Log.d("API_KEY_TEST", "API key might be invalid.")
+                    }
+                }
+            }
+        })
+    }
 
     private val viewModel: MainViewModel by activityViewModels()
-
     private var openMap = false
     lateinit var permissionManager: PermissionRequestHandlerImpl
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        testApiKey("AIzaSyDqU4AcEJQPDKc_SRON8ALo_1VfmSW1nuM")
         permissionManager = viewModel.permissionManager
         permissionManager.from(this@HomeFragment)
         initPermissionResultFlow()

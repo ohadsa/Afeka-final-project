@@ -1,4 +1,4 @@
-package com.example.final_project_afeka.login
+package com.example.final_project_afeka.login.ui.composable
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.final_project_afeka.R
 import com.example.final_project_afeka.login.ui.LoginMode

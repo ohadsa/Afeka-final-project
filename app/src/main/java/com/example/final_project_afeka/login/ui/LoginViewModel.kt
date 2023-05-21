@@ -15,7 +15,7 @@ class LoginViewModel @Inject constructor(
     private val realTimeDB: FirebaseDatabase,
 
     ) : ViewModel() {
-    val myUser = MutableStateFlow(MyUser().copy(premium = -1))
+    val myUser = MutableStateFlow(MyUser())
     private val email get() = myUser.value.email
     private val password get() = myUser.value.password
 
