@@ -7,8 +7,8 @@ import com.example.final_project_afeka.data.Hazard
 import com.example.final_project_afeka.data.MyTime
 import com.example.final_project_afeka.data.PermissionData
 import com.example.final_project_afeka.data.durationFromTime
-import com.example.final_project_afeka.services.Loc
-import com.example.final_project_afeka.services.LocationData
+import com.example.final_project_afeka.services.objects.Loc
+import com.example.final_project_afeka.services.objects.LocationData
 import com.example.final_project_afeka.utils.SharedPreferenceUtil.START_TIME_TAG
 import com.example.final_project_afeka.utils.permissions.PermissionRequestHandlerImpl
 import com.google.firebase.auth.FirebaseAuth

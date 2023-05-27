@@ -1,4 +1,4 @@
-package com.example.final_project_afeka.services
+package com.example.final_project_afeka.services.objects
 
 import android.os.Parcel
 import android.os.Parcelable

@@ -24,7 +24,11 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.final_project_afeka.MainActivity
 import com.example.final_project_afeka.R
 import com.example.final_project_afeka.services.LocationUpdatesBroadcastReceiver.Companion.ACTION_PROCESS_UPDATES
-import com.example.final_project_afeka.ui.generic.costumeDialog
+import com.example.final_project_afeka.services.objects.BumpDetector
+import com.example.final_project_afeka.services.objects.Loc
+import com.example.final_project_afeka.services.objects.LocationData
+import com.example.final_project_afeka.services.objects.MCT5
+import com.example.final_project_afeka.services.objects.OnBumpDetect
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest

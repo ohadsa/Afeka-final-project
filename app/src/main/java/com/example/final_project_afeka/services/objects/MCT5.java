@@ -1,4 +1,4 @@
-package com.example.final_project_afeka.services;
+package com.example.final_project_afeka.services.objects;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executors;

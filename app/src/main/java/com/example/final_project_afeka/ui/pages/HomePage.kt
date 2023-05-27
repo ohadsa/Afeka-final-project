@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.final_project_afeka.MainViewModel
 import com.example.final_project_afeka.R
-import com.example.final_project_afeka.fragments.CostumeButton
+import com.example.final_project_afeka.ui.components.CostumeButton
 import com.example.final_project_afeka.ui.generic.ClickableTopBar
 import com.example.final_project_afeka.ui.generic.FontName
 import com.example.final_project_afeka.ui.generic.MyFont

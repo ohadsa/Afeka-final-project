@@ -158,9 +158,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         }
     }
-
-
-
     private fun logout() {
         activity?.startActivity(Intent(requireActivity(),
             LoginActivity::class.java))

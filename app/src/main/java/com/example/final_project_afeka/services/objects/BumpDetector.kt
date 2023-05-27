@@ -1,4 +1,4 @@
-package com.example.final_project_afeka.services
+package com.example.final_project_afeka.services.objects
 
 import android.content.Context
 import android.hardware.Sensor

@@ -3,6 +3,7 @@ package com.example.final_project_afeka.services
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.example.final_project_afeka.services.objects.LocationData
 import com.google.android.gms.location.LocationResult
 
 class LocationUpdatesBroadcastReceiver : BroadcastReceiver() {

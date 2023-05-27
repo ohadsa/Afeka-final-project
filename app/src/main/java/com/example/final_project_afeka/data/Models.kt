@@ -1,10 +1,9 @@
 package com.example.final_project_afeka.data
 
 import android.os.Parcelable
-import com.example.final_project_afeka.services.Loc
+import com.example.final_project_afeka.services.objects.Loc
 import com.example.final_project_afeka.utils.permissions.Permission
 import kotlinx.parcelize.Parcelize
-import java.util.*
 
 @Parcelize
 data class MyUser(

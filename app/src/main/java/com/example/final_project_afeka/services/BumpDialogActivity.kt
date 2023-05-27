@@ -18,12 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import com.example.final_project_afeka.HAZARDS_TAG_FB
-import com.example.final_project_afeka.MainViewModel
-import com.example.final_project_afeka.data.Hazard
-import com.example.final_project_afeka.fragments.SaveHazardPopup
-import com.example.final_project_afeka.ui.theme.generic.MyText
-import com.example.final_project_afeka.utils.permissions.PermissionRequestHandlerImpl
-import com.google.firebase.auth.FirebaseAuth
+import com.example.final_project_afeka.ui.components.SaveHazardPopup
 import com.google.firebase.database.FirebaseDatabase
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
