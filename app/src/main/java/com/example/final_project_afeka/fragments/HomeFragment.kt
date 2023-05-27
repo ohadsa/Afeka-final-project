@@ -90,7 +90,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 onBack = { logout() },
                 goToMap = {
                     if (foregroundPermissionApproved()) {
-                        viewModel.startDriving()
                         findNavController().navigate(R.id.action_to_mapFragment)
                     } else {
                         openMap = true

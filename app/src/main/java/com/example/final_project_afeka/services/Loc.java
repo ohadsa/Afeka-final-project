@@ -1,4 +1,4 @@
-package com.example.final_project_afeka.location;
+package com.example.final_project_afeka.services;
 
 public class Loc {
 

@@ -1,7 +1,7 @@
 package com.example.final_project_afeka.data
 
 import android.os.Parcelable
-import com.example.final_project_afeka.location.Loc
+import com.example.final_project_afeka.services.Loc
 import com.example.final_project_afeka.utils.permissions.Permission
 import kotlinx.parcelize.Parcelize
 import java.util.*
@@ -44,7 +44,7 @@ data class PermissionData(
 )
 
 data class Hazard(
-    val loc :Loc,
+    val loc : Loc,
     val title :String,
     val snippet :String
 )

@@ -9,6 +9,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.RadioButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +30,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.final_project_afeka.MainViewModel
 import com.example.final_project_afeka.R
+import com.example.final_project_afeka.services.HazardLevel
 import com.example.final_project_afeka.ui.generic.*
 import com.example.final_project_afeka.ui.theme.MyColors
 import com.example.final_project_afeka.ui.theme.generic.DrawableImage
@@ -59,8 +61,6 @@ fun DrivePage(
 ) {
     val drivingCounter by viewModel.drivingCounter.collectAsState(null)
     val location by viewModel.location.collectAsState()
-    val openHazardDialog by viewModel.openHazardDialog.collectAsState()
-    val pinedLocation by viewModel.pinnedLocation.collectAsState()
 
 
 
@@ -71,7 +71,8 @@ fun DrivePage(
                 .width(200.dp)
                 .height(144.dp)
                 .align(
-                    Alignment.TopStart))
+                    Alignment.TopStart
+                ))
 
         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
             ClickableTopBar(
@@ -150,33 +151,23 @@ fun DrivePage(
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
-
-        if (openHazardDialog)
-            Dialog(onDismissRequest = { viewModel.closeHazardDialog() }) {
-                SaveHazardPopup(
-                    onDismiss = { viewModel.closeHazardDialog() },
-                    onSave = {
-                        pinedLocation?.let {
-                            viewModel.saveNewHazard(it)
-                            viewModel.closeHazardDialog()
-                        }
-                    }
-                )
-            }
     }
 }
 
 @Composable
 fun SaveHazardPopup(
+    curLevel: HazardLevel,
+    onLevelChanged : (HazardLevel) -> Unit,
     onDismiss: () -> Unit,
     onSave: () -> Unit,
 ) {
-    Box(Modifier.fillMaxSize()) {
-        Column(Modifier
-            .fillMaxWidth(0.9f)
-            .clip(RoundedCornerShape(8.dp))
-            .background(Color.White, RoundedCornerShape(8.dp))
-            .align(Alignment.Center)) {
+    Box {
+        Column(
+            Modifier
+                .width(300.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color.White, RoundedCornerShape(8.dp))
+                .align(Alignment.Center)) {
             ClickableTopBar(
                 leftId = R.drawable.left_arrow,
                 onLeft = { onDismiss() },
@@ -205,6 +196,26 @@ fun SaveHazardPopup(
                     font = MyFont.Body16,
                     color = MyColors.gray50)
                 Spacer(modifier = Modifier.height(24.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    HazardLevel.values().forEach {
+                        Column {
+                        RadioButton(
+                            selected = curLevel == it,
+                            onClick = { onLevelChanged(it) }
+                        )
+                        MyText(
+                            modifier = Modifier
+                                .padding(bottom = 4.dp),
+                            textAlign = TextAlign.Center,
+                            text = it.name,
+                            font = MyFont.ButtonSmall,
+                            color = MyColors.darkGray)
+                        }
+                    }
+                }
                 CostumeButton(
                     modifier = Modifier
                         .fillMaxWidth()

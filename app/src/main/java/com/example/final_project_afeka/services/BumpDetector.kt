@@ -1,15 +1,16 @@
-package com.example.final_project_afeka.sensors
+package com.example.final_project_afeka.services
 
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.widget.Toast
 
-class BumpDetector(val context: Context, private val onBumpDetected: OnBumpDetect) : SensorEventListener {
+class BumpDetector(val context: Context, private val onBumpDetected: OnBumpDetect) :
+    SensorEventListener {
 
-    private val sensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+    private val sensorManager: SensorManager =
+        context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private val accelerometer: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
     private var lastUpdateTime: Long = 0
@@ -38,11 +39,14 @@ class BumpDetector(val context: Context, private val onBumpDetected: OnBumpDetec
                     val y = event.values[1]
                     val z = event.values[2]
 
-                    val acceleration = Math.sqrt((x * x + y * y + z * z).toDouble()) - SensorManager.GRAVITY_EARTH
+                    val acceleration =
+                        Math.sqrt((x * x + y * y + z * z).toDouble()) - SensorManager.GRAVITY_EARTH
 
                     if (acceleration > shakeThreshold) {
-                        Toast.makeText(context , "acc = $acceleration" , Toast.LENGTH_SHORT).show()
-                        onBumpDetected.invoke()
+                        onBumpDetected.invoke(
+                            onBumpDetected.getLocation().first,
+                            onBumpDetected.getLocation().second
+                        )
                     }
                 }
             }
@@ -53,7 +57,7 @@ class BumpDetector(val context: Context, private val onBumpDetected: OnBumpDetec
         // You can handle accuracy changes if needed
     }
 }
-
 interface OnBumpDetect {
-    operator fun invoke()
+    operator fun invoke(latitude: Double, longitude: Double)
+    fun getLocation(): Pair<Double, Double>
 }

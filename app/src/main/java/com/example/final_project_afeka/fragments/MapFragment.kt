@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.activityViewModels
 import com.example.final_project_afeka.MainViewModel
 import com.example.final_project_afeka.R
+import com.example.final_project_afeka.services.LocationData
 import com.example.final_project_afeka.ui.generic.ClickableTopBar
 import com.example.final_project_afeka.ui.generic.CostumeDivider
 import com.google.android.gms.maps.model.CameraPosition
@@ -28,6 +29,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
 
+val defaultLoc = LocationData(0.0 , 0.0, 0f)
 class MapFragment :  Fragment(R.layout.fragment_map){
 
     private val viewModel: MainViewModel by activityViewModels()
@@ -37,9 +39,9 @@ class MapFragment :  Fragment(R.layout.fragment_map){
         view.findViewById<ComposeView>(R.id.composeViewMap).setContent {
             val location by viewModel.location.collectAsState()
             val hazards by viewModel.hazardAround.collectAsState()
-            val cur = location?.let { LatLng(it.lat, it.lon) } ?: LatLng(32.18 , 34.81)//home
+            val cur by viewModel.lastLocation.collectAsState()
             val cameraPositionState = rememberCameraPositionState {
-                position = CameraPosition.fromLatLngZoom(cur, 15f)
+                position = CameraPosition.fromLatLngZoom(LatLng(cur?.latitude ?: defaultLoc.latitude,cur?.longitude?: defaultLoc.longitude ), 15f)
             }
             println("all hazards = ${hazards.map { "$it\n" }}")
 
@@ -50,7 +52,6 @@ class MapFragment :  Fragment(R.layout.fragment_map){
                         leftId = R.drawable.left_arrow,
                         middle = stringResource(id = R.string.map_fragment_title),
                         onLeft = {
-                            viewModel.stopService()
                             activity?.onBackPressed()
                         }
                     )

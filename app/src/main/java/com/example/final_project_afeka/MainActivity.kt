@@ -1,26 +1,77 @@
 package com.example.final_project_afeka
 
-import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
+import android.util.AttributeSet
+import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
-import com.example.final_project_afeka.sensors.*
+import androidx.lifecycle.lifecycleScope
+import com.example.final_project_afeka.services.BumpDetectorService
+import com.example.final_project_afeka.services.BumpDialogActivity
+import com.example.final_project_afeka.services.LocationData
+import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-/*
+
 @AndroidEntryPoint
-class MainActivity : FragmentActivity() {
+class MainActivity : AppCompatActivity() {
+
+    private val requestPermissionsCode = 1
+    private val REQUEST_LOCATION_PERMISSION_CODE = 1001
+
+    @Inject
+    lateinit var sharedPreferences: SharedPreferences
+    val viewModel: MainViewModel by viewModels()
+
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun getLocationOnce()  {
+        if (hasLocationPermissions()) {
+            val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestLocationPermissions()
+            }
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    viewModel.lastLocation.value =
+                        LocationData(location.latitude, location.longitude, location.speed)
+                }
+            }
+        } else {
+            requestLocationPermissions()
+        }
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        MyReminder.startReminder(this)
+        handleServiceConfigurations()
+        getLocationOnce()
         collectAll()
+
     }
 
     override fun onResume() {
@@ -30,86 +81,13 @@ class MainActivity : FragmentActivity() {
     override fun onPause() {
         super.onPause()
     }
-    @Inject
-    lateinit var sharedPreferences: SharedPreferences
-    val viewModel: MainViewModel by viewModels()
 
-
-    @Inject
-    lateinit var auth: FirebaseAuth
-    private var shouldHide = false
-
-    private val myRadio: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val json = intent.getStringExtra(LocationService.BROADCAST_NEW_LOCATION_EXTRA_KEY)
-            val loc: Loc = Gson().fromJson(json, Loc::class.java)
-            viewModel.notifyLocationChanged(loc)
-        }
-    }
-
-    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
-        when (ev?.action) {
-            MotionEvent.ACTION_UP -> {
-                if (shouldHide) {
-                    currentFocus?.let { focus ->
-                        UIUtil.hideKeyboard(this)
-                        focus.clearFocus()
-                    }
-                }
-            }
-            MotionEvent.ACTION_MOVE -> shouldHide = false
-            MotionEvent.ACTION_DOWN -> shouldHide = true
-        }
-        return super.dispatchTouchEvent(ev)
-    }
-
-    private fun startLoginActivity() {
-        startActivity(Intent(this, LoginActivity::class.java))
-        finish()
-    }
-
-
-    public override fun onStart() {
-        super.onStart()
-        val currentUser = auth.currentUser
-        if (currentUser == null)
-            startLoginActivity()
-        val intentFilter = IntentFilter(LocationService.BROADCAST_NEW_LOCATION)
-        LocalBroadcastManager.getInstance(this).registerReceiver(myRadio, intentFilter)
-        registerReceiver(myRadio, intentFilter)
-    }
-
-    private fun startService() {
-        val intent = Intent(this, LocationService::class.java)
-        intent.action = LocationService.START_FOREGROUND_SERVICE
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent)
-            val intentFilter = IntentFilter(LocationService.BROADCAST_NEW_LOCATION)
-            registerReceiver(myRadio, intentFilter)
-        } else {
-            startService(intent)
-        }
-    }
-    override fun onDestroy() {
-        // Stop the SensorService when the app is closed
-        super.onDestroy()
-    }
-
-    private fun stopService() {
-        val intent = Intent(this, LocationService::class.java)
-        intent.action = LocationService.STOP_FOREGROUND_SERVICE
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent)
-        } else {
-            startService(intent)
-        }
-    }
-
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun collectAll() {
         lifecycleScope.launch {
             viewModel.startTime.collect {
                 if (it != null)
-                    startService()
+                    startMyService()
             }
 
         }
@@ -117,7 +95,8 @@ class MainActivity : FragmentActivity() {
             viewModel.finishService.collect {
                 if (it) {
                     viewModel.allowService.value = false
-                    stopService()
+                    viewModel.startService()
+                    stopMyService()
                 }
             }
 
@@ -126,55 +105,23 @@ class MainActivity : FragmentActivity() {
             viewModel.allowService.collect {
                 if (it) {
                     viewModel.finishService.value = false
-                    startService()
+                    startMyService()
                 }
             }
 
         }
-    }
 
-    override fun onStop() {
-        super.onStop()
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(myRadio)
-        unregisterReceiver(myRadio)
-    }
-
-
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        if (intent != null) {
-            if (getIntent().action == LocationService.MAIN_ACTION) {
-                // came from notification
+        lifecycleScope.launch{
+            viewModel.openHazardDialog.collect{
+                viewModel.openHazardDialog.value = false
+                if(it){
+                    val intent = Intent(this@MainActivity, BumpDialogActivity::class.java)
+                    intent.putExtra("latitude", viewModel.lastLocation.value?.latitude)
+                    intent.putExtra("longitude", viewModel.lastLocation.value?.longitude)
+                    startActivity(intent)
+                }
             }
         }
-    }
-}
-
- */
-@AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
-
-    private val requestPermissionsCode = 1
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        if (checkPermissions()) {
-            startBumpDetectorService()
-        } else {
-            requestPermissions()
-        }
-    }
-
-    private fun checkPermissions(): Boolean {
-        // Check if the necessary permissions are granted
-        return ContextCompat.checkSelfPermission(this,ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun requestPermissions() {
-        // Request necessary permissions
-        ActivityCompat.requestPermissions(this, arrayOf(ACCESS_FINE_LOCATION), requestPermissionsCode)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -195,15 +142,77 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
     private fun startBumpDetectorService() {
         val serviceIntent = Intent(this, BumpDetectorService::class.java)
+        intent.action = BumpDetectorService.START_FOREGROUND_SERVICE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent)
         } else {
             startService(serviceIntent)
         }
     }
+    private fun stopMyService() {
+        val intent = Intent(this, BumpDetectorService::class.java)
+        intent.action = BumpDetectorService.STOP_FOREGROUND_SERVICE
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
+        }
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun startMyService() {
+        if (hasLocationPermissions()) {
+            startBumpDetectorService()
+        } else {
+            requestLocationPermissions()
+        }
+    }
+    private fun handleServiceConfigurations() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val intent = Intent()
+            val packageName = packageName
+            val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                intent.data = Uri.parse("package:$packageName")
+                startActivity(intent)
+            }
+        }
+
+    }
+
+    private fun hasLocationPermissions(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+    }
+    private fun requestLocationPermissions() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                ),
+            REQUEST_LOCATION_PERMISSION_CODE
+        ).also {
+            println("request permission")
+        }
+    }
+
+
 }
 
 

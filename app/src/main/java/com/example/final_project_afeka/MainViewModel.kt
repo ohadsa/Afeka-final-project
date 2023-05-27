@@ -7,7 +7,8 @@ import com.example.final_project_afeka.data.Hazard
 import com.example.final_project_afeka.data.MyTime
 import com.example.final_project_afeka.data.PermissionData
 import com.example.final_project_afeka.data.durationFromTime
-import com.example.final_project_afeka.location.Loc
+import com.example.final_project_afeka.services.Loc
+import com.example.final_project_afeka.services.LocationData
 import com.example.final_project_afeka.utils.SharedPreferenceUtil.START_TIME_TAG
 import com.example.final_project_afeka.utils.permissions.PermissionRequestHandlerImpl
 import com.google.firebase.auth.FirebaseAuth
@@ -35,6 +36,7 @@ class MainViewModel @Inject constructor(
 
 
     val hazardAround = MutableStateFlow(listOf<Hazard>())
+    val lastLocation = MutableStateFlow<LocationData?>(null)
     val location = MutableStateFlow<Loc?>(null)
     var initialStartTime: Long = sharedPreferences.getLong(START_TIME_TAG, -1)
     val permissionRequesterFlow =
@@ -125,9 +127,6 @@ class MainViewModel @Inject constructor(
         openHazardDialog.value = true
     }
 
-    fun notifyLocationChanged(newVal: Loc) {
-        location.value = newVal
-    }
 
     fun closeHazardDialog() {
         openHazardDialog.value = false

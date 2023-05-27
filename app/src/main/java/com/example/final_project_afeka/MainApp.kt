@@ -1,7 +1,7 @@
 package com.example.final_project_afeka
 
 import android.app.Application
-import com.example.final_project_afeka.location.MCT5
+import com.example.final_project_afeka.services.MCT5
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
