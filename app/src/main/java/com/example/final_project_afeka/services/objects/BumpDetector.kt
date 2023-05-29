@@ -1,10 +1,14 @@
 package com.example.final_project_afeka.services.objects
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import com.example.final_project_afeka.MainApp
+import com.example.final_project_afeka.utils.SharedPreferenceUtil
+import com.facebook.appevents.ml.Utils
 
 class BumpDetector(val context: Context, private val onBumpDetected: OnBumpDetect) :
     SensorEventListener {
@@ -14,7 +18,6 @@ class BumpDetector(val context: Context, private val onBumpDetected: OnBumpDetec
     private val accelerometer: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
     private var lastUpdateTime: Long = 0
-    private val shakeThreshold = 5f // Adjust this value based on the desired sensitivity
 
     fun startListening() {
         accelerometer?.let {
@@ -35,6 +38,7 @@ class BumpDetector(val context: Context, private val onBumpDetected: OnBumpDetec
 
     override fun onSensorChanged(event: SensorEvent?) {
         event?.let {
+            val shakeThreshold = SharedPreferenceUtil.readSensitivity().value
 
             if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
                 val currentTime = System.currentTimeMillis()
@@ -47,7 +51,7 @@ class BumpDetector(val context: Context, private val onBumpDetected: OnBumpDetec
                     val z = event.values[2]
 
                     val acceleration =
-                        Math.sqrt((x * x + y * y + z * z).toDouble()) - SensorManager.GRAVITY_EARTH
+                        Math.sqrt((y * y).toDouble()) - SensorManager.GRAVITY_EARTH
 
                     if (acceleration > shakeThreshold) {
                         onBumpDetected.invoke(
@@ -61,6 +65,12 @@ class BumpDetector(val context: Context, private val onBumpDetected: OnBumpDetec
     }
 
 }
+
+enum class Sensitivity (val value: Float){
+    VerySensitive(2f), Sensitive(5f), Normal(7f), Insensitive(9f), VeryInsensitive(12f)
+}
+
+
 
 interface OnBumpDetect {
     operator fun invoke(latitude: Double, longitude: Double)

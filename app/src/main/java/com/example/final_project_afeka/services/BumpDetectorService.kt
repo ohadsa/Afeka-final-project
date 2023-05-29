@@ -1,6 +1,7 @@
 package com.example.final_project_afeka.services
 
 import android.Manifest
+import android.app.ActivityManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -21,6 +22,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.example.final_project_afeka.HAZARDS_TAG_FB
 import com.example.final_project_afeka.MainActivity
 import com.example.final_project_afeka.R
 import com.example.final_project_afeka.services.LocationUpdatesBroadcastReceiver.Companion.ACTION_PROCESS_UPDATES
@@ -34,7 +36,23 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.util.Date
+import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
+@AndroidEntryPoint
 class BumpDetectorService : Service() {
 
     private lateinit var bumpDetector: BumpDetector
@@ -42,6 +60,10 @@ class BumpDetectorService : Service() {
     private var counter = 1
     private var powerManager: PowerManager? = null
     private var wakeLock: PowerManager.WakeLock? = null
+    private val serviceScope = CoroutineScope(Dispatchers.Default)
+
+    @Inject
+    lateinit var realTimeDB: FirebaseDatabase
 
     companion object {
         const val ACTION_LOCATION_UPDATE = "com.example.project.action.LOCATION_UPDATE"
@@ -217,6 +239,7 @@ class BumpDetectorService : Service() {
     }
 
     var isServiceRunningRightNow = false
+    var lastNotify: Long = 0
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -225,6 +248,7 @@ class BumpDetectorService : Service() {
             stopForeground(true)
             return START_NOT_STICKY
         }
+        lastNotify = Date().time
         showNotification(lastLocation?.latitude, lastLocation?.longitude)
         bumpDetector.startListening()
         requestLocationUpdates()
@@ -318,6 +342,19 @@ class BumpDetectorService : Service() {
         }
     }
 
+    fun isAppInForeground(context: Context): Boolean {
+        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val appProcesses = activityManager.runningAppProcesses ?: return false
+
+        val packageName = context.packageName
+        for (appProcess in appProcesses) {
+            if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && appProcess.processName == packageName) {
+                return true
+            }
+        }
+
+        return false
+    }
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun showNotification(latitude: Double?, longitude: Double?) {
@@ -338,21 +375,167 @@ class BumpDetectorService : Service() {
             val content =
                 if (latitude == null || longitude == null || latitude == 0.0 || longitude == 0.0) "Drive Safe!"
                 else "Hazards ahead!"
-            val text =  if (latitude == null || longitude == null || latitude == 0.0 || longitude == 0.0) "Remember Turn Lights On!"
-            else "Location saved and sent to server!"
+            val text =
+                if (latitude == null || longitude == null || latitude == 0.0 || longitude == 0.0) "Remember Turn Lights On!"
+                else "Location saved and sent to server!"
             val notification = NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.drawable.road_blockade)
                 .setContentTitle(content)
-                .setContentText( text )
+                .setContentText(text)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(pendingIntent) // Add the PendingIntent to the notification
                 .setAutoCancel(true) // Automatically remove the notification when the user taps it
                 .build()
-
+            if (!isAppInForeground(this)) {
+                if (Date().time - lastNotify > 5000) {
+                    saveHazardInDatabase(latitude, longitude)
+                    lastNotify = Date().time
+                }
+            }
             startForeground(1, notification)
             counter++
         }
     }
+
+    private fun saveHazardInDatabase(latitude: Double?, longitude: Double?) {
+        if (latitude == null || longitude == null || latitude == 0.0 || longitude == 0.0) return
+        serviceScope.launch {
+            saveNewHazard(
+                HazardResponse(
+                    latitude,
+                    longitude,
+                )
+            )
+        }
+    }
+
+    // functions to write to database
+    private fun generateKey(lon: Double, lat: Double): String {
+        val buffer = ByteBuffer.allocate(16).order(ByteOrder.BIG_ENDIAN)
+        buffer.putDouble(lon)
+        buffer.putDouble(lat)
+        val bytes = buffer.array()
+        return bytes.joinToString("") { String.format("%02X", it) }
+    }
+
+    private fun reverseKey(key: String): Pair<Double, Double> {
+        val bytes = key.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+        val buffer = ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN)
+        val a = buffer.double
+        val b = buffer.double
+        return Pair(a, b)
+    }
+
+    private fun combinedLocation(
+        closeHazards: List<HazardResponse>,
+        newHazard: HazardResponse
+    ): HazardResponse {
+        var totalLat = 0.0
+        var totalLon = 0.0
+        var totalReports = 0
+        var totalLevel = 0
+        var verified = false
+
+        for (hazard in closeHazards) {
+            totalLat += hazard.lat
+            totalLon += hazard.lon
+            totalReports += hazard.reports
+            totalLevel += hazard.level.toInt().times(hazard.reports)
+            verified = verified || hazard.verified
+        }
+
+        totalLat += newHazard.lat
+        totalLon += newHazard.lon
+        totalReports += newHazard.reports
+        totalLevel += newHazard.level.toInt()
+        verified = verified || newHazard.verified
+
+        val avgLat = totalLat / (closeHazards.size + 1)
+        val avgLon = totalLon / (closeHazards.size + 1)
+        val avgLevel = (totalLevel.toDouble().div((totalReports + 1).toDouble()))
+            .toHazardLevel()
+
+        return HazardResponse(avgLat, avgLon, avgLevel, totalReports, verified)
+    }
+
+    private fun calculateDistanceInMeter(loc1: Loc, loc2: Loc): Double {
+        val earthRadius = 6371 // radius in kilometers
+
+        val dLat = Math.toRadians(loc2.lat - loc1.lat)
+        val dLon = Math.toRadians(loc2.lon - loc1.lon)
+
+        val a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(loc1.lat)) * Math.cos(Math.toRadians(loc2.lat)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2)
+        val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+
+        val distance = earthRadius * c
+
+        return distance * 1000 // convert to meters
+    }
+
+    private suspend fun getAllHazardsIn50MetersRadius(newHazard: HazardResponse): List<HazardResponse> {
+        val allHazards: List<HazardResponse> = initHazardsAround()
+        val closeHazards: MutableList<HazardResponse> = ArrayList()
+
+        for (hazard in allHazards) {
+            val distance = calculateDistanceInMeter(
+                Loc(hazard.lat, hazard.lon),
+                Loc(newHazard.lat, newHazard.lon)
+            )
+            if (distance <= 50) {
+                closeHazards.add(hazard)
+            }
+        }
+
+        return closeHazards
+    }
+
+    suspend fun saveNewHazard(hazard: HazardResponse) {
+        try {
+            val closeHazards: List<HazardResponse> = getAllHazardsIn50MetersRadius(hazard)
+            val hazardToSave: HazardResponse = combinedLocation(closeHazards, hazard)
+
+            realTimeDB.getReference(HAZARDS_TAG_FB)
+                .child(generateKey(hazardToSave.lon, hazardToSave.lat))
+                .setValue(hazardToSave)
+
+            // Remove the close hazards.
+            for (oldHazard in closeHazards) {
+                realTimeDB.getReference(HAZARDS_TAG_FB)
+                    .child(generateKey(oldHazard.lon, oldHazard.lat))
+                    .removeValue()
+            }
+        } catch (e: Exception) {
+            // Handle the exception, e.g., log the error or show a message to the user.
+            println("saveNewHazard Error: ${e.message}")
+        }
+    }
+
+    private suspend fun initHazardsAround(): List<HazardResponse> =
+        suspendCancellableCoroutine { continuation ->
+            realTimeDB.getReference(HAZARDS_TAG_FB)
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val hazards = mutableListOf<HazardResponse>()
+                        for (shot in snapshot.children) {
+                            val hazardResponse = shot.getValue(HazardResponse::class.java)
+                            hazardResponse?.let {
+                                hazards.add(it)
+                            }
+                        }
+                        if (continuation.isActive) {
+                            continuation.resume(hazards)
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        if (continuation.isActive) {
+                            continuation.resumeWithException(Exception(error.toException()))
+                        }
+                    }
+                })
+        }
 
 
 }

@@ -35,7 +35,6 @@ class BumpDialogViewModel @Inject constructor(
         val bytes = buffer.array()
         return bytes.joinToString("") { String.format("%02X", it) }
     }
-
     private fun reverseKey(key: String): Pair<Double, Double> {
         val bytes = key.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
         val buffer = ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN)
@@ -43,41 +42,34 @@ class BumpDialogViewModel @Inject constructor(
         val b = buffer.double
         return Pair(a, b)
     }
-
-
-    private fun combinedLocation(
-        closeHazards: List<HazardResponse>,
-        newHazard: HazardResponse
-    ): HazardResponse {
+    private fun combinedLocation(closeHazards: List<HazardResponse>, newHazard: HazardResponse): HazardResponse {
         var totalLat = 0.0
         var totalLon = 0.0
         var totalReports = 0
         var totalLevel = 0
+        var verified = false
 
         for (hazard in closeHazards) {
             totalLat += hazard.lat
             totalLon += hazard.lon
             totalReports += hazard.reports
             totalLevel += hazard.level.toInt().times(hazard.reports)
+            verified = verified || hazard.verified
         }
 
         totalLat += newHazard.lat
         totalLon += newHazard.lon
         totalReports += newHazard.reports
         totalLevel += newHazard.level.toInt()
+        verified = verified || newHazard.verified
 
         val avgLat = totalLat / (closeHazards.size + 1)
         val avgLon = totalLon / (closeHazards.size + 1)
-        println("total $totalLevel")
-        println("totalReports $totalReports")
-        println("total / size  ${totalLevel.toDouble().div((totalReports + 1).toDouble())}")
         val avgLevel = (totalLevel.toDouble().div((totalReports + 1).toDouble()))
             .toHazardLevel()
 
-        return HazardResponse(avgLat, avgLon, avgLevel, totalReports)
+        return HazardResponse(avgLat, avgLon, avgLevel, totalReports , verified)
     }
-
-
     private fun calculateDistanceInMeter(loc1: Loc, loc2: Loc): Double {
         val earthRadius = 6371 // radius in kilometers
 
@@ -93,7 +85,6 @@ class BumpDialogViewModel @Inject constructor(
 
         return distance * 1000 // convert to meters
     }
-
     private suspend fun getAllHazardsIn50MetersRadius(newHazard: HazardResponse): List<HazardResponse> {
         val allHazards: List<HazardResponse> = initHazardsAround()
         val closeHazards: MutableList<HazardResponse> = ArrayList()
@@ -110,7 +101,6 @@ class BumpDialogViewModel @Inject constructor(
 
         return closeHazards
     }
-
     suspend fun saveNewHazard(hazard: HazardResponse) {
             try {
                 val closeHazards: List<HazardResponse> = getAllHazardsIn50MetersRadius(hazard)
@@ -131,8 +121,6 @@ class BumpDialogViewModel @Inject constructor(
                 println("saveNewHazard Error: ${e.message}")
             }
     }
-
-
     private suspend fun initHazardsAround(): List<HazardResponse> =
         suspendCancellableCoroutine { continuation ->
             realTimeDB.getReference(HAZARDS_TAG_FB)

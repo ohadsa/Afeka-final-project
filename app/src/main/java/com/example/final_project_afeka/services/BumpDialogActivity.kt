@@ -58,9 +58,10 @@ class BumpDialogActivity : AppCompatActivity() {
                             lifecycleScope.launch {
                                 viewModel.saveNewHazard(
                                     HazardResponse(
-                                        latitude,
-                                        longitude,
-                                        curLevel
+                                        lat = latitude,
+                                        lon = longitude,
+                                        level = curLevel,
+                                         verified = true
                                     )
                                 )
                                 finish()
@@ -78,7 +79,8 @@ data class HazardResponse(
     val lat: Double = 0.0,
     val lon: Double = 0.0,
     val level: HazardLevel = HazardLevel.LOW,
-    val reports: Int = 1
+    val reports: Int = 1,
+    val verified: Boolean = false,
     )
 
 enum class HazardLevel {
