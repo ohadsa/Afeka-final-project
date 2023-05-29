@@ -45,5 +45,6 @@ data class PermissionData(
 data class Hazard(
     val loc : Loc,
     val title :String,
-    val snippet :String
-)
+    val snippet :String,
+    val reports: Int = 0,
+    )

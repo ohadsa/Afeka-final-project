@@ -17,11 +17,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
 import com.example.final_project_afeka.HAZARDS_TAG_FB
 import com.example.final_project_afeka.ui.components.SaveHazardPopup
 import com.google.firebase.database.FirebaseDatabase
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import javax.inject.Inject
@@ -53,14 +55,16 @@ class BumpDialogActivity : AppCompatActivity() {
                         },
                         onDismiss = { finish() },
                         onSave = {
-                            viewModel.saveNewHazard(
-                                HazardResponse(
-                                    latitude,
-                                    longitude,
-                                    curLevel
+                            lifecycleScope.launch {
+                                viewModel.saveNewHazard(
+                                    HazardResponse(
+                                        latitude,
+                                        longitude,
+                                        curLevel
+                                    )
                                 )
-                            )
-                            finish()
+                                finish()
+                            }
                         }
                     )
                 }
@@ -69,40 +73,30 @@ class BumpDialogActivity : AppCompatActivity() {
     }
 }
 
-@HiltViewModel
-class BumpDialogViewModel @Inject constructor(
-    private val realTimeDB: FirebaseDatabase,
-) : ViewModel() {
-
-    fun saveNewHazard(data: HazardResponse) {
-        realTimeDB.getReference(HAZARDS_TAG_FB).child(generateKey(data.lon, data.lat))
-            .setValue(data)
-    }
-
-    private fun generateKey(lon: Double, lat: Double): String {
-        val buffer = ByteBuffer.allocate(16).order(ByteOrder.BIG_ENDIAN)
-        buffer.putDouble(lon)
-        buffer.putDouble(lat)
-        val bytes = buffer.array()
-        return bytes.joinToString("") { String.format("%02X", it) }
-    }
-
-    private fun reverseKey(key: String): Pair<Double, Double> {
-        val bytes = key.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
-        val buffer = ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN)
-        val a = buffer.double
-        val b = buffer.double
-        return Pair(a, b)
-    }
-
-}
 
 data class HazardResponse(
-    val lat: Double,
-    val lon: Double,
-    val level: HazardLevel
+    val lat: Double = 0.0,
+    val lon: Double = 0.0,
+    val level: HazardLevel = HazardLevel.LOW,
+    val reports: Int = 1
     )
 
 enum class HazardLevel {
     LOW, MEDIUM, HIGH
+}
+
+fun HazardLevel.toInt(): Int {
+    return when(this) {
+        HazardLevel.LOW -> 0
+        HazardLevel.MEDIUM -> 1
+        HazardLevel.HIGH -> 2
+    }
+}
+
+fun Double.toHazardLevel(): HazardLevel {
+    return when {
+        this < 0.5 -> HazardLevel.LOW
+        this < 1.5  -> HazardLevel.MEDIUM
+        else -> HazardLevel.HIGH
+    }
 }

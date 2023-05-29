@@ -132,26 +132,7 @@ class MainViewModel @Inject constructor(
         openHazardDialog.value = false
     }
 
-    fun saveNewHazard(location: Loc) {
-        realTimeDB.getReference(HAZARDS_TAG_FB).child(generateKey(location.lon, location.lat))
-            .setValue(location)
-    }
 
-    private fun generateKey(lon: Double, lat: Double): String {
-        val buffer = ByteBuffer.allocate(16).order(ByteOrder.BIG_ENDIAN)
-        buffer.putDouble(lon)
-        buffer.putDouble(lat)
-        val bytes = buffer.array()
-        return bytes.joinToString("") { String.format("%02X", it) }
-    }
-
-    private fun reverseKey(key: String): Pair<Double, Double> {
-        val bytes = key.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
-        val buffer = ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN)
-        val a = buffer.double
-        val b = buffer.double
-        return Pair(a, b)
-    }
 
     fun startService() {
         allowService.value = true

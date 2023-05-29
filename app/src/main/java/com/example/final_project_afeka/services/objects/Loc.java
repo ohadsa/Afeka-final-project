@@ -8,6 +8,17 @@ public class Loc {
 
     public Loc() {}
 
+    public Loc(double lat, double lon, double speed) {
+        this.lat = lat;
+        this.lon = lon;
+        this.speed = speed;
+    }
+
+    public Loc(double lat, double lon) {
+        this.lat = lat;
+        this.lon = lon;
+    }
+
     public double getLat() {
         return lat;
     }
