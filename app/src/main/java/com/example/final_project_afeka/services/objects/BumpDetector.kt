@@ -1,14 +1,11 @@
 package com.example.final_project_afeka.services.objects
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import com.example.final_project_afeka.MainApp
 import com.example.final_project_afeka.utils.SharedPreferenceUtil
-import com.facebook.appevents.ml.Utils
 
 class BumpDetector(val context: Context, private val onBumpDetected: OnBumpDetect) :
     SensorEventListener {
@@ -39,7 +36,6 @@ class BumpDetector(val context: Context, private val onBumpDetected: OnBumpDetec
     override fun onSensorChanged(event: SensorEvent?) {
         event?.let {
             val shakeThreshold = SharedPreferenceUtil.readSensitivity().value
-
             if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
                 val currentTime = System.currentTimeMillis()
 
@@ -51,9 +47,10 @@ class BumpDetector(val context: Context, private val onBumpDetected: OnBumpDetec
                     val z = event.values[2]
 
                     val acceleration =
-                        Math.sqrt((y * y).toDouble()) - SensorManager.GRAVITY_EARTH
-
+                        Math.sqrt((y * y  ).toDouble()) - SensorManager.GRAVITY_EARTH
                     if (acceleration > shakeThreshold) {
+                        println("sense: ${SharedPreferenceUtil.readSensitivity().value}")
+                        println("acceleration: $acceleration")
                         onBumpDetected.invoke(
                             onBumpDetected.getLocation().first,
                             onBumpDetected.getLocation().second
@@ -66,8 +63,8 @@ class BumpDetector(val context: Context, private val onBumpDetected: OnBumpDetec
 
 }
 
-enum class Sensitivity (val value: Float){
-    VerySensitive(2f), Sensitive(5f), Normal(7f), Insensitive(9f), VeryInsensitive(12f)
+enum class Sensitivity (val value: Float, val text: String ){
+    VerySensitive(1f, "Very sensative"), Sensitive(6f, "Sensative"), Normal(9f, "Normal"), Insensitive(14f , "Insensitive"), VeryInsensitive(21f,"Very Insensitive")
 }
 
 

@@ -9,6 +9,8 @@ import com.example.final_project_afeka.data.PermissionData
 import com.example.final_project_afeka.data.durationFromTime
 import com.example.final_project_afeka.services.objects.Loc
 import com.example.final_project_afeka.services.objects.LocationData
+import com.example.final_project_afeka.services.objects.Sensitivity
+import com.example.final_project_afeka.utils.SharedPreferenceUtil
 import com.example.final_project_afeka.utils.SharedPreferenceUtil.START_TIME_TAG
 import com.example.final_project_afeka.utils.permissions.PermissionRequestHandlerImpl
 import com.google.firebase.auth.FirebaseAuth
@@ -22,8 +24,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import javax.inject.Inject
 
 @HiltViewModel
@@ -137,6 +137,7 @@ class MainViewModel @Inject constructor(
     fun startService() {
         allowService.value = true
     }
+
 }
 
 const val HAZARDS_TAG_FB = "hazards"
