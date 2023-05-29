@@ -23,7 +23,6 @@ class MapFragment :  Fragment(R.layout.fragment_map){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         view.findViewById<ComposeView>(R.id.composeViewMap).setContent {
-            val location by viewModel.location.collectAsState()
             val hazards by viewModel.hazardAround.collectAsState()
             val cur by viewModel.lastLocation.collectAsState()
             val cameraPositionState = rememberCameraPositionState {
