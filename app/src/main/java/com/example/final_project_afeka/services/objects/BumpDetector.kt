@@ -21,24 +21,25 @@ class BumpDetector(val context: Context, private val onBumpDetected: OnBumpDetec
             sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
         }
     }
+
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
         // You can handle accuracy changes if needed
     }
-    fun stopListening () {
 
-        sensorManager.unregisterListener(this )
+    fun stopListening() {
 
-     }
+        sensorManager.unregisterListener(this)
+
+    }
 
 
-
-    override fun onSensorChanged(event:SensorEvent?) {
+    override fun onSensorChanged(event: SensorEvent?) {
         event?.let {
 
-            if (event.sensor.type ==  Sensor.TYPE_ACCELEROMETER) {
-                val currentTime =  System.currentTimeMillis()
+            if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
+                val currentTime = System.currentTimeMillis()
 
-                if (currentTime  - lastUpdateTime > 100) {
+                if (currentTime - lastUpdateTime > 100) {
                     lastUpdateTime = currentTime
 
                     val x = event.values[0]
@@ -60,6 +61,7 @@ class BumpDetector(val context: Context, private val onBumpDetected: OnBumpDetec
     }
 
 }
+
 interface OnBumpDetect {
     operator fun invoke(latitude: Double, longitude: Double)
     fun getLocation(): Pair<Double, Double>
